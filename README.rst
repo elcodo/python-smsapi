@@ -2,22 +2,77 @@
 python-smsapi
 =============
 
-Python client library for SMSAPI.pl
+Python client library for SMSAPI.pl.
+
+Currently allows:
+
+* Address Book manipulation - adding, listing and deleting numbers and groups
+* SMS sending
 
 Author
 ------
-Grzegorz Biały (https://github.com/grzegorzbialy/)
-ELCODO (http://elcodo.pl)
+
+* Grzegorz Biały (https://github.com/grzegorzbialy/)
+* ELCODO (http://elcodo.pl)
 
 Install
 -------
 You can do one of the following:
+
 * python setup.py install
-* copy ggapi to anywhere to your PYTHONPATH (e.g. your project directory)
+* copy sms to anywhere to your PYTHONPATH (e.g. your project directory)
+
+Requirements
+------------
+
+* Python 2.5+
+* suds SOAP client library (https://fedorahosted.org/suds/)
 
 Usage
 -----
 
+*Init and get points (credits) quantity*::
+
+    from smsapi import SmsApi, SmsApiAddressBook
+    import logging
+
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger('suds.client').setLevel(logging.DEBUG)
+
+    username = "<USERNAME>"
+    password = "<PASSWORD>"
+
+    sms = SmsApi(username, password)
+    ab = SmsApiAddressBook(username, password)
+
+    print "You have %s points left" % sms.get_points()
+
+*Address Book*::
+
+    # add group called "Test Group"
+    group_id = ab.add_group(u"Test Group")
+
+    # add test number
+    number = ab.add_number(u"48123456789", u"Test Number", group_id)
+
+    # get all groups and assign numbers to it
+    groups_and_numbers = {}
+    groups = ab.get_groups()
+    for g in groups:
+        groups_and_numbers[g['name']] = ab.get_numbers(g['id'])
+
+    # print groups_and_numbers
+    # expected result:
+    # {u'Test Group': [{'group_id': <X>, 'name': Test Number, 'number': 48123456789}]}
+
+*SMS sending*::
+
+    # Send SMS message to +48123456789 - fill sender field "SENDER" and message with "MESSAGE"
+    sms = sms.send_sms("48123456789", "SENDER", "MESSAGE", eco=False)
+
+    # print sms
+    # expected result:
+    # {'cost': '0.1650', 'sms_id': <X>}
 
 License
 -------

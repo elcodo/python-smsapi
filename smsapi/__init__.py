@@ -87,7 +87,7 @@ class SmsApiAddressBook(SmsApiBaseObject):
             })
         return retlist
 
-    def add_group(self, name, description):
+    def add_group(self, name, description=u""):
         """Add group. Return ID (int) if added, Exception otherwise"""
         response = self.client.service.add_group(self.user, name, description)
         try:
@@ -149,8 +149,8 @@ class SmsApi(SmsApiBaseObject):
 
     def get_points(self):
         """Get user points"""
-        resp = self.client.service.get_points(self.__username, self.__password)
-        return resp['points']
+        resp = self.client.service.get_points(self.username, self.password)
+        return "%.4f" % resp['points']
 
     def send_sms(self, recipient, sender, message, eco=1, date_send=None,
             params=[], idx=None, no_unicode=0, datacoding=None,
@@ -178,4 +178,10 @@ class SmsApi(SmsApiBaseObject):
                 sms.date_send = time.mktime(date_send.timetuple())
             except Exception, e:
                 raise SmsApiException(e)
-        return self.client.service.send_sms(self.user, sms)
+        response = self.client.service.send_sms(self.user, sms)
+        if "result" in response and response["result"] == 0:
+            return {
+                'sms_id': int(response['response'][0]['id']),
+                'cost': "%.4f" % response['points'],
+            }
+        raise SmsApiException("Couldn't send SMS")
