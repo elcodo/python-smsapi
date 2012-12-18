@@ -1,0 +1,2 @@
+v0.1, 2010 -- initial release based on SOAP
+v0.2, 2012-12-18 -- rewrite for HTTPS API, SMS sending, subaccounts manipulation, sender manipulation

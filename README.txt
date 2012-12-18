@@ -6,8 +6,10 @@ Python client library for SMSAPI.pl.
 
 Currently allows:
 
-* Address Book manipulation - adding, listing and deleting numbers and groups
 * SMS sending
+* User sender (caller ID) manipulation (add, delete, check)
+* User subaccounts management
+* Address Book manipulation - adding, listing and deleting numbers and groups (suds library needed for SOAP API)
 
 Author
 ------
@@ -20,32 +22,43 @@ Install
 You can do one of the following:
 
 * python setup.py install
-* copy sms to anywhere to your PYTHONPATH (e.g. your project directory)
+* copy smsapi.py to anywhere to your PYTHONPATH (e.g. your project directory)
 
 Requirements
 ------------
 
-* Python 2.5+
-* suds SOAP client library (https://fedorahosted.org/suds/)
+* Python 2.6+
+* (optional) suds library for SOAP API - AddressBook, etc.
 
 Usage
 -----
 
 *Init and get points (credits) quantity*::
 
-    from smsapi import SmsApi, SmsApiAddressBook
-    import logging
-
-    logging.basicConfig(level=logging.INFO)
-    logging.getLogger('suds.client').setLevel(logging.DEBUG)
+    from smsapi import SmsApi
 
     username = "<USERNAME>"
     password = "<PASSWORD>"
 
     sms = SmsApi(username, password)
-    ab = SmsApiAddressBook(username, password)
 
-    print "You have %s points left" % sms.get_points()
+    total_points = sms.get_points()['points']
+    print "You have %s points left" % total_points
+
+
+*SMS sending*::
+
+    # Send SMS message to +48123456789 - fill sender field "SENDER" and message with "MESSAGE"
+    sms = sms.send_sms(
+        recipient="48123456789",
+        sender_name="SENDER",
+        message="MESSAGE",
+        eco=False,
+    )
+
+    # print sms
+    # expected result:
+    # {'cost': '0.1650', 'id': <X>, 'status': "OK"}
 
 *Address Book*::
 
@@ -65,21 +78,12 @@ Usage
     # expected result:
     # {u'Test Group': [{'group_id': <X>, 'name': Test Number, 'number': 48123456789}]}
 
-*SMS sending*::
-
-    # Send SMS message to +48123456789 - fill sender field "SENDER" and message with "MESSAGE"
-    sms = sms.send_sms("48123456789", "SENDER", "MESSAGE", eco=False)
-
-    # print sms
-    # expected result:
-    # {'cost': '0.1650', 'sms_id': <X>}
 
 License
 -------
 OSI - The BSD License (http://www.opensource.org/licenses/bsd-license.php)
 
-
-Copyright (c) 2010, Grzegorz Bialy, ELCODO.pl
+Copyright (c) 2012, Grzegorz Bialy, ELCODO.pl
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
